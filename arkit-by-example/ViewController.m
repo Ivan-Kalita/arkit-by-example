@@ -30,7 +30,7 @@
   [self setupRecognizers];
   
   // Create a ARSession confi object we can re-use
-  self.arConfig = [ARWorldTrackingSessionConfiguration new];
+    self.arConfig = [ARWorldTrackingConfiguration new];
   self.arConfig.lightEstimationEnabled = YES;
   self.arConfig.planeDetection = ARPlaneDetectionHorizontal;
   
@@ -480,20 +480,24 @@
       [self showMessage:@"Camera tracking is not available on this device"];
       break;
       
-    case ARTrackingStateLimited:
-      switch(camera.trackingStateReason) {
-        case ARTrackingStateReasonExcessiveMotion:
-          [self showMessage:@"Limited tracking: slow down the movement of the device"];
-          break;
-          
-        case ARTrackingStateReasonInsufficientFeatures:
-          [self showMessage:@"Limited tracking: too few feature points, view areas with more textures"];
-          break;
-          
-        case ARTrackingStateReasonNone:
-          NSLog(@"Tracking limited none");
-          break;
-      }
+      case ARTrackingStateLimited:
+          switch(camera.trackingStateReason) {
+              case ARTrackingStateReasonExcessiveMotion:
+                  [self showMessage:@"Limited tracking: slow down the movement of the device"];
+                  break;
+              case ARTrackingStateReasonInsufficientFeatures:
+                  [self showMessage:@"Limited tracking: too few feature points, view areas with more textures"];
+                  break;
+              case ARTrackingStateReasonNone:
+                  NSLog(@"Tracking limited none");
+                  break;
+              case ARTrackingStateReasonInitializing:
+                  [self showMessage:@"Tracking is initializing"];
+                  break;
+              case ARTrackingStateReasonRelocalizing:
+                  [self showMessage:@"Tracking is relocalizing"];
+                  break;
+          }
       break;
       
     case ARTrackingStateNormal:
