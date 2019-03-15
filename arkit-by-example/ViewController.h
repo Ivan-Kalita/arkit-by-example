@@ -25,7 +25,7 @@
 - (void)hidePlanes;
 - (void)refresh;
 - (void)disableTracking:(BOOL)disabled;
-- (void)insertCube:(ARHitTestResult *)hitResult;
+- (void)updateCube:(ARHitTestResult *)hitResult;
 - (void)explode:(ARHitTestResult *)hitResult;
 - (void)insertCubeFrom: (UITapGestureRecognizer *)recognizer;
 - (void)explodeFrom: (UITapGestureRecognizer *)recognizer;
@@ -33,8 +33,8 @@
 - (IBAction)settingsUnwind:(UIStoryboardSegue *)segue;
 - (IBAction)detectPlanesChanged:(id)sender;
 
-@property (nonatomic, retain) NSMutableDictionary<NSUUID *, Plane *> *planes;
-@property (nonatomic, retain) NSMutableArray<Cube *> *cubes;
+@property (nonatomic, retain) Plane *plane;
+@property (nonatomic, retain) Cube *cube;
 @property (nonatomic, retain) Config *config;
 @property (nonatomic, retain) ARWorldTrackingConfiguration *arConfig;
 @property (weak, nonatomic) IBOutlet MessageView *messageViewer;

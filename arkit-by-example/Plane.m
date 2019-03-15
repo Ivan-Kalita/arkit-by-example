@@ -9,7 +9,7 @@
 #import "Plane.h"
 #import "PBRMaterial.h"
 
-static int currentMaterialIndex = 0;
+#define PLANE_SIZE 10
 
 @implementation Plane
 
@@ -27,7 +27,7 @@ static int currentMaterialIndex = 0;
   // between the plane and the gometry we add to the scene
   float planeHeight = 0.01;
   
-  self.planeGeometry = [SCNBox boxWithWidth:width height:planeHeight length:length chamferRadius:0];
+  self.planeGeometry = [SCNBox boxWithWidth:PLANE_SIZE height:planeHeight length:PLANE_SIZE chamferRadius:0];
   
   // Since we are using a cube, we only want to render the tron grid
   // on the top face, make the other sides transparent
@@ -47,7 +47,7 @@ static int currentMaterialIndex = 0;
   
   // Give the plane a physics body so that items we add to the scene interact with it
   planeNode.physicsBody = [SCNPhysicsBody
-                           bodyWithType:SCNPhysicsBodyTypeKinematic
+                           bodyWithType:SCNPhysicsBodyTypeStatic
                            shape: [SCNPhysicsShape shapeWithGeometry:self.planeGeometry options:nil]];
   
   [self setTextureScale];
@@ -60,9 +60,6 @@ static int currentMaterialIndex = 0;
 }
 
 - (void)changeMaterial {
-  // Static, all future cubes use this to have the same material
-  currentMaterialIndex = (currentMaterialIndex + 1) % 5;
-  
   SCNMaterial *material = [Plane currentMaterial];
   SCNMaterial *transparentMaterial = [SCNMaterial new];
   transparentMaterial.diffuse.contents = [UIColor colorWithWhite:1.0 alpha:0.0];
@@ -78,34 +75,15 @@ static int currentMaterialIndex = 0;
 }
 
 + (SCNMaterial *)currentMaterial {
-  NSString *materialName;
-  switch(currentMaterialIndex) {
-    case 0:
-      materialName = @"tron";
-      break;
-    case 1:
-      materialName = @"oakfloor2";
-      break;
-    case 2:
-      materialName = @"sculptedfloorboards";
-      break;
-    case 3:
-      materialName = @"granitesmooth";
-      break;
-    case 4:
-      // planes will be transparent
-      return nil;
-      break;
-  }
-  return [[PBRMaterial materialNamed:materialName] copy];
+  return [[PBRMaterial materialNamed:@"tron"] copy];
 }
 
 - (void)update:(ARPlaneAnchor *)anchor {
   // As the user moves around the extend and location of the plane
   // may be updated. We need to update our 3D geometry to match the
   // new parameters of the plane.
-  self.planeGeometry.width = anchor.extent.x;
-  self.planeGeometry.length = anchor.extent.z;
+  self.planeGeometry.width = PLANE_SIZE;//anchor.extent.x;
+  self.planeGeometry.length = PLANE_SIZE;//anchor.extent.z;
   
   // When the plane is first created it's center is 0,0,0 and the nodes
   // transform contains the translation parameters. As the plane is updated

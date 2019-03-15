@@ -14,5 +14,5 @@
 - (void)changeMaterial;
 - (void)remove;
 + (SCNMaterial *)currentMaterial;
-
+- (void)updateSizeWithWidth:(CGFloat)width height:(CGFloat)height length:(CGFloat)length;
 @end

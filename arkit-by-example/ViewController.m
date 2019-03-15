@@ -13,10 +13,20 @@
 #import "ConfigViewController.h"
 
 @interface ViewController () <ARSCNViewDelegate, UIGestureRecognizerDelegate, SCNPhysicsContactDelegate>
+@property (weak, nonatomic) IBOutlet UIView *settingsPanel;
 @property (nonatomic, strong) IBOutlet ARSCNView *sceneView;
+@property (weak, nonatomic) IBOutlet UIStepper *widthStepper;
+@property (weak, nonatomic) IBOutlet UIStepper *heightStepper;
+@property (weak, nonatomic) IBOutlet UIStepper *depthStepper;
+@property (weak, nonatomic) IBOutlet UILabel *widthLabel;
+@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *depthLabel;
 @end
 
 @implementation ViewController
+- (IBAction)closeSettings:(id)sender {
+  _settingsPanel.hidden = YES;
+}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -26,11 +36,11 @@
   
   [self setupScene];
   [self setupLights];
-  [self setupPhysics];
+  //[self setupPhysics];
   [self setupRecognizers];
   
   // Create a ARSession confi object we can re-use
-    self.arConfig = [ARWorldTrackingConfiguration new];
+  self.arConfig = [ARWorldTrackingConfiguration new];
   self.arConfig.lightEstimationEnabled = YES;
   self.arConfig.planeDetection = ARPlaneDetectionHorizontal;
   
@@ -47,6 +57,26 @@
   [UIApplication.sharedApplication setIdleTimerDisabled:YES];
 }
 
+- (IBAction)steperValueChanged:(id)sender {
+  if (sender == _widthStepper) {
+    _heightStepper.value = (120.0 - _widthStepper.value) * (_heightStepper.value / (_depthStepper.value + _heightStepper.value));
+    _depthStepper.value = 120.0 - _widthStepper.value - _heightStepper.value;
+  } else if (sender == _heightStepper) {
+    _widthStepper.value = (120.0 - _heightStepper.value) * (_widthStepper.value / (_depthStepper.value + _widthStepper.value));
+    _depthStepper.value = 120.0 - _widthStepper.value - _heightStepper.value;
+  } else if (sender == _depthStepper) {
+    _heightStepper.value = (120.0 - _depthStepper.value) * (_heightStepper.value / (_widthStepper.value + _heightStepper.value));
+    _widthStepper.value = 120.0 - _depthStepper.value - _heightStepper.value;
+  }
+  _widthStepper.value = floor(_widthStepper.value);
+  _heightStepper.value = floor(_heightStepper.value);
+  _depthStepper.value = floor(_depthStepper.value);
+  _widthLabel.text = [NSString stringWithFormat:@"%@", @(_widthStepper.value)];
+  _heightLabel.text = [NSString stringWithFormat:@"%@", @(_heightStepper.value)];
+  _depthLabel.text = [NSString stringWithFormat:@"%@", @(_depthStepper.value)];
+  [self updateCubeSize];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
   [self.navigationController setNavigationBarHidden:YES animated:NO];
@@ -57,7 +87,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
   [super viewWillDisappear:animated];
-    
+
   // Pause the view's session
   [self.sceneView.session pause];
 }
@@ -71,12 +101,6 @@
   // Setup the ARSCNViewDelegate - this gives us callbacks to handle new
   // geometry creation
   self.sceneView.delegate = self;
-  
-  // A dictionary of all the current planes being rendered in the scene
-  self.planes = [NSMutableDictionary new];
-  
-  // A list of all the cubes being rendered in the scene
-  self.cubes = [NSMutableArray new];
   
   // Make things look pretty :)
   self.sceneView.antialiasingMode = SCNAntialiasingModeMultisampling4X;
@@ -127,23 +151,60 @@
 
 - (void)setupRecognizers {
   // Single tap will insert a new piece of geometry into the scene
-  UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(insertCubeFrom:)];
+  UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc]
+                                                  initWithTarget:self
+                                                  action:@selector(insertCubeFrom:)];
   tapGestureRecognizer.numberOfTapsRequired = 1;
   [self.sceneView addGestureRecognizer:tapGestureRecognizer];
   
   // Press and hold will open a config menu for the selected geometry
-  UILongPressGestureRecognizer *materialGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(geometryConfigFrom:)];
+  UILongPressGestureRecognizer *materialGestureRecognizer = [[UILongPressGestureRecognizer alloc]
+                                                             initWithTarget:self
+                                                             action:@selector(geometryConfigFrom:)];
   materialGestureRecognizer.minimumPressDuration = 0.5;
   [self.sceneView addGestureRecognizer:materialGestureRecognizer];
   
   // Press and hold with two fingers causes an explosion
-  UILongPressGestureRecognizer *explodeGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(explodeFrom:)];
+  UILongPressGestureRecognizer *explodeGestureRecognizer = [[UILongPressGestureRecognizer alloc]
+                                                            initWithTarget:self
+                                                            action:@selector(explodeFrom:)];
   explodeGestureRecognizer.minimumPressDuration = 1;
   explodeGestureRecognizer.numberOfTouchesRequired = 2;
   [self.sceneView addGestureRecognizer:explodeGestureRecognizer];
+
+  UIPanGestureRecognizer* panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self
+                                                                                         action:@selector(dragCubeFrom:)];
+  [self.sceneView addGestureRecognizer:panGestureRecognizer];
+
+  UIRotationGestureRecognizer* rotationGestureRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self
+                                                                                         action:@selector(rotateCubeFrom:)];
+  [self.sceneView addGestureRecognizer:rotationGestureRecognizer];
+
 }
 
-- (void)insertCubeFrom: (UITapGestureRecognizer *)recognizer {
+- (void)rotateCubeFrom:(UIRotationGestureRecognizer *)recognizer {
+  static SCNVector3 originalRotation;
+  if (!self.cube)
+    return;
+  if (recognizer.state == UIGestureRecognizerStateBegan) {
+    originalRotation = self.cube.childNodes.firstObject.eulerAngles;
+  } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+    self.cube.childNodes.firstObject.eulerAngles = SCNVector3Make(originalRotation.x,
+                                           originalRotation.y + recognizer.rotation,
+                                           originalRotation.z);
+  }
+}
+
+- (void)dragCubeFrom:(UIPanGestureRecognizer *)recognizer {
+  [self dragOrInsertCubeFrom:recognizer];
+}
+
+- (void)insertCubeFrom:(UITapGestureRecognizer *)recognizer {
+  [self dragOrInsertCubeFrom:recognizer];
+}
+
+- (void)dragOrInsertCubeFrom:(UIGestureRecognizer *)recognizer {
+
   // Take the screen space tap coordinates and pass them to the hitTest method on the ARSCNView instance
   CGPoint tapPoint = [recognizer locationInView:self.sceneView];
   NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:tapPoint types:ARHitTestResultTypeExistingPlaneUsingExtent];
@@ -151,12 +212,18 @@
   // If the intersection ray passes through any plane geometry they will be returned, with the planes
   // ordered by distance from the camera
   if (result.count == 0) {
+    [self showMessage:@"No plane detected"];
     return;
   }
-  
+
+  [NSOperationQueue.mainQueue addOperationWithBlock:^{
+    _settingsPanel.hidden = NO;
+  }];
+
   // If there are multiple hits, just pick the closest plane
   ARHitTestResult * hitResult = [result firstObject];
-  [self insertCube:hitResult];
+
+  [self updateCube:hitResult];
 }
 
 - (void)explodeFrom: (UILongPressGestureRecognizer *)recognizer {
@@ -198,16 +265,8 @@
   // We add all the geometry as children of the Plane/Cube SCNNode object, so we can
   // get the parent and see what type of geometry this is
   SCNNode *parentNode = node.parentNode;
-  if ([parentNode isKindOfClass:[Cube class]]) {
+  if ([parentNode respondsToSelector:@selector(changeMaterial)]) {
     [((Cube *)parentNode) changeMaterial];
-  } else {
-    [((Plane *)parentNode) changeMaterial];
-  }
-}
-
-- (void)hidePlanes {
-  for(NSUUID *planeId in self.planes) {
-    [self.planes[planeId] hide];
   }
 }
 
@@ -223,66 +282,31 @@
   [self.sceneView.session runWithConfiguration:self.arConfig];
 }
 
-- (void)explode:(ARHitTestResult *)hitResult {
-  // For an explosion, we take the world position of the explosion and the position of each piece of geometry
-  // in the world. We then take the distance between those two points, the closer to the explosion point the
-  // geometry is the stronger the force of the explosion.
-  
-  // The hitResult will be a point on the plane, we move the explosion down a little bit below the
-  // plane so that the goemetry fly upwards off the plane
-  float explosionYOffset = 0.1;
-  
-  SCNVector3 position = SCNVector3Make(
-                                       hitResult.worldTransform.columns[3].x,
-                                       hitResult.worldTransform.columns[3].y - explosionYOffset,
-                                       hitResult.worldTransform.columns[3].z
-                                       );
-  
-  // We need to find all of the geometry affected by the explosion, ideally we would have some
-  // spatial data structure like an octree to efficiently find all geometry close to the explosion
-  // but since we don't have many items, we can just loop through all of the current geoemtry
-  for(SCNNode *cubeNode in self.cubes) {
-    // The distance between the explosion and the geometry
-    SCNVector3 distance = SCNVector3Make(
-                                          cubeNode.worldPosition.x - position.x,
-                                          cubeNode.worldPosition.y - position.y,
-                                          cubeNode.worldPosition.z - position.z
-                                          );
-    
-    float len = sqrtf(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
-    
-    // Set the maximum distance that the explosion will be felt, anything further than 2 meters from
-    // the explosion will not be affected by any forces
-    float maxDistance = 2;
-    float scale = MAX(0, (maxDistance - len));
-    
-    // Scale the force of the explosion
-    scale = scale * scale * 5;
-    
-    // Scale the distance vector to the appropriate scale
-    distance.x = distance.x / len * scale;
-    distance.y = distance.y / len * scale;
-    distance.z = distance.z / len * scale;
-    
-    // Apply a force to the geometry. We apply the force at one of the corners of the cube
-    // to make it spin more, vs just at the center
-    [[cubeNode.childNodes firstObject].physicsBody applyForce:distance atPosition:SCNVector3Make(0.05, 0.05, 0.05) impulse:YES];
-  }
+- (void)updateCubeSize {
+  [self.cube updateSizeWithWidth:_widthStepper.value / 100.0
+                          height:_heightStepper.value / 100.0
+                          length:_depthStepper.value / 100.0];
 }
 
-- (void)insertCube:(ARHitTestResult *)hitResult {
+
+
+- (void)updateCube:(ARHitTestResult *)hitResult {
   // We insert the geometry slightly above the point the user tapped, so that it drops onto the plane
   // using the physics engine
-  float insertionYOffset = 0.5;
   SCNVector3 position = SCNVector3Make(
                                        hitResult.worldTransform.columns[3].x,
-                                       hitResult.worldTransform.columns[3].y + insertionYOffset,
+                                       hitResult.worldTransform.columns[3].y,
                                        hitResult.worldTransform.columns[3].z
                                        );
-  
+  if (self.cube) {
+    self.cube.childNodes.firstObject.position = position;
+    return;
+  }
+
   Cube *cube = [[Cube alloc] initAtPosition:position withMaterial:[Cube currentMaterial]];
-  [self.cubes addObject:cube];
+  self.cube = cube;
   [self.sceneView.scene.rootNode addChildNode:cube];
+  [self updateCubeSize];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -350,13 +374,19 @@
   }
 }
 
+- (void)clean
+{
+  [self.plane remove];
+  [self.cube remove];
+}
+
+- (IBAction)reset:(id)sender {
+  [self showMessage:@"Start new tracking session"];
+  [self refresh];
+}
+
 - (void)refresh {
-  for (NSUUID *planeId in self.planes) {
-    [self.planes[planeId] remove];
-  }
-  for (Cube *cube in self.cubes) {
-    [cube remove];
-  }
+  [self clean];
   [self.sceneView.session runWithConfiguration:self.arConfig options:ARSessionRunOptionResetTracking | ARSessionRunOptionRemoveExistingAnchors];
 }
 
@@ -401,11 +431,14 @@
   if (![anchor isKindOfClass:[ARPlaneAnchor class]]) {
     return;
   }
-  
+  [self showMessage:@"Plane detected"];
   // When a new plane is detected we create a new SceneKit plane to visualize it in 3D
   Plane *plane = [[Plane alloc] initWithAnchor: (ARPlaneAnchor *)anchor isHidden: NO withMaterial:[Plane currentMaterial]];
-  [self.planes setObject:plane forKey:anchor.identifier];
+  self.plane = plane;
   [node addChildNode:plane];
+  [NSOperationQueue.mainQueue addOperationWithBlock:^{
+    [self disableTracking:YES];
+  }];
 }
 
 /**
@@ -416,15 +449,14 @@
  @param anchor The anchor that was updated.
  */
 - (void)renderer:(id <SCNSceneRenderer>)renderer didUpdateNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
-  Plane *plane = [self.planes objectForKey:anchor.identifier];
-  if (plane == nil) {
+  if (![self.plane.anchor.identifier isEqual:anchor.identifier]) {
     return;
   }
   
   // When an anchor is updated we need to also update our 3D geometry too. For example
   // the width and height of the plane detection may have changed so we need to update
   // our SceneKit geometry to match that
-  [plane update:(ARPlaneAnchor *)anchor];
+  [self.plane update:(ARPlaneAnchor *)anchor];
 }
 
 /**
@@ -437,7 +469,8 @@
 - (void)renderer:(id <SCNSceneRenderer>)renderer didRemoveNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
   // Nodes will be removed if planes multiple individual planes that are detected to all be
   // part of a larger plane are merged.
-  [self.planes removeObjectForKey:anchor.identifier];
+  if ([self.plane.anchor.identifier isEqual:anchor.identifier])
+    [self.plane remove];
 }
 
 /**
@@ -465,7 +498,9 @@
 //}
 
 - (void)showMessage:(NSString *)message {
-  [self.messageViewer queueMessage:message];
+  [NSOperationQueue.mainQueue addOperationWithBlock:^{
+    [self.messageViewer queueMessage:message];
+  }];
 }
 
 - (void)session:(ARSession *)session cameraDidChangeTrackingState:(ARCamera *)camera {
@@ -480,24 +515,24 @@
       [self showMessage:@"Camera tracking is not available on this device"];
       break;
       
-      case ARTrackingStateLimited:
-          switch(camera.trackingStateReason) {
-              case ARTrackingStateReasonExcessiveMotion:
-                  [self showMessage:@"Limited tracking: slow down the movement of the device"];
-                  break;
-              case ARTrackingStateReasonInsufficientFeatures:
-                  [self showMessage:@"Limited tracking: too few feature points, view areas with more textures"];
-                  break;
-              case ARTrackingStateReasonNone:
-                  NSLog(@"Tracking limited none");
-                  break;
-              case ARTrackingStateReasonInitializing:
-                  [self showMessage:@"Tracking is initializing"];
-                  break;
-              case ARTrackingStateReasonRelocalizing:
-                  [self showMessage:@"Tracking is relocalizing"];
-                  break;
-          }
+    case ARTrackingStateLimited:
+      switch(camera.trackingStateReason) {
+        case ARTrackingStateReasonExcessiveMotion:
+          [self showMessage:@"Limited tracking: slow down the movement of the device"];
+          break;
+        case ARTrackingStateReasonInsufficientFeatures:
+          [self showMessage:@"Limited tracking: too few feature points, view areas with more textures"];
+          break;
+        case ARTrackingStateReasonNone:
+          NSLog(@"Tracking limited none");
+          break;
+        case ARTrackingStateReasonInitializing:
+          [self showMessage:@"Tracking is initializing"];
+          break;
+        case ARTrackingStateReasonRelocalizing:
+          [self showMessage:@"Tracking is relocalizing"];
+          break;
+      }
       break;
       
     case ARTrackingStateNormal:

@@ -11,51 +11,39 @@
 #import "CollisionCategory.h"
 #import "PBRMaterial.h"
 
-static int currentMaterialIndex = 0;
-
 @implementation Cube
 
 - (instancetype)initAtPosition:(SCNVector3)position withMaterial:(SCNMaterial *)material {
   self = [super init];
-  
-  float dimension = 0.2;
-  SCNBox *cube = [SCNBox boxWithWidth:dimension height:dimension length:dimension chamferRadius:0];
+
+  SCNBox *cube = [SCNBox boxWithWidth:1 height:1 length:1 chamferRadius:0.01];
   cube.materials = @[material];
   SCNNode *node = [SCNNode nodeWithGeometry:cube];
-  
+  /*
   // The physicsBody tells SceneKit this geometry should be manipulated by the physics engine
   node.physicsBody = [SCNPhysicsBody bodyWithType:SCNPhysicsBodyTypeDynamic shape:nil];
   node.physicsBody.mass = 2.0;
-  node.physicsBody.categoryBitMask = CollisionCategoryCube;
-  node.position = position;
-  
+  node.physicsBody.categoryBitMask = CollisionCategoryCube;*/
+  node.position = SCNVector3Make(position.x, position.y - 0.5, position.z);
+  node.pivot = SCNMatrix4MakeTranslation(0, -0.5, 0);
+  node.scale = SCNVector3Make(0.2, 0.2, 0.2);
   [self addChildNode:node];
   return self;
 }
 
+- (void)updateSizeWithWidth:(CGFloat)width height:(CGFloat)height length:(CGFloat)length {
+  SCNNode *cubeNode = self.childNodes.firstObject;
+  cubeNode.scale = SCNVector3Make(width, height, length);
+}
+
 - (void)changeMaterial {
-  // Static, all future cubes use this to have the same material
-  currentMaterialIndex = (currentMaterialIndex + 1) % 4;
   [self.childNodes firstObject].geometry.materials = @[[Cube currentMaterial]];
 }
 
 + (SCNMaterial *)currentMaterial {
-  NSString *materialName;
-  switch(currentMaterialIndex) {
-    case 0:
-      materialName = @"rustediron-streaks";
-      break;
-    case 1:
-      materialName = @"carvedlimestoneground";
-      break;
-    case 2:
-      materialName = @"granitesmooth";
-      break;
-    case 3:
-      materialName = @"old-textured-fabric";
-      break;
-  }
-  return [[PBRMaterial materialNamed:materialName] copy];
+  SCNMaterial* material = [[PBRMaterial materialNamed:@"tron-red"] copy];
+  //[material setDoubleSided:YES];
+  return material;
 }
 
 - (void) remove {
