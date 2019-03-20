@@ -207,7 +207,7 @@
 
   // Take the screen space tap coordinates and pass them to the hitTest method on the ARSCNView instance
   CGPoint tapPoint = [recognizer locationInView:self.sceneView];
-  NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:tapPoint types:ARHitTestResultTypeExistingPlaneUsingExtent];
+  NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:tapPoint types:ARHitTestResultTypeEstimatedHorizontalPlane];
   
   // If the intersection ray passes through any plane geometry they will be returned, with the planes
   // ordered by distance from the camera
@@ -428,6 +428,7 @@
  @param anchor The added anchor.
  */
 - (void)renderer:(id <SCNSceneRenderer>)renderer didAddNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
+  return;
   if (![anchor isKindOfClass:[ARPlaneAnchor class]]) {
     return;
   }
