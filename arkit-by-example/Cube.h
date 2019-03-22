@@ -8,11 +8,20 @@
 
 #import <SceneKit/SceneKit.h>
 
-@interface Cube : SCNNode
+typedef NS_ENUM(NSUInteger, CubeMode) {
+    CubeModeNormal,
+    CubeModeResizing
+};
 
+@interface Cube : SCNNode
+@property (nonatomic) CubeMode mode;
+- (void)updateScaleControlsPosition;
 - (instancetype)initAtPosition:(SCNVector3)position withMaterial:(SCNMaterial *)material;
 - (void)changeMaterial;
 - (void)remove;
 + (SCNMaterial *)currentMaterial;
-- (void)updateSizeWithWidth:(CGFloat)width height:(CGFloat)height length:(CGFloat)length;
+@property (nonatomic) SCNNode* widthScalingControlNode;
+@property (nonatomic) SCNNode* heightScalingControlNode;
+@property (nonatomic) SCNNode* depthScalingControlNode;
+@property (nonatomic) SCNNode* cubeNode;
 @end

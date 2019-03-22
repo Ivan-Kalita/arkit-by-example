@@ -10,7 +10,6 @@
 #import <UIKit/UIKit.h>
 #import <SceneKit/SceneKit.h>
 #import <ARKit/ARKit.h>
-#import "Plane.h"
 #import "Cube.h"
 #import "Config.h"
 #import "MessageView.h"
@@ -26,14 +25,12 @@
 - (void)refresh;
 - (void)disableTracking:(BOOL)disabled;
 - (void)updateCube:(ARHitTestResult *)hitResult;
-- (void)explode:(ARHitTestResult *)hitResult;
 - (void)insertCubeFrom: (UITapGestureRecognizer *)recognizer;
 - (void)explodeFrom: (UITapGestureRecognizer *)recognizer;
 - (void)geometryConfigFrom: (UITapGestureRecognizer *)recognizer;
 - (IBAction)settingsUnwind:(UIStoryboardSegue *)segue;
 - (IBAction)detectPlanesChanged:(id)sender;
 
-@property (nonatomic, retain) Plane *plane;
 @property (nonatomic, retain) Cube *cube;
 @property (nonatomic, retain) Config *config;
 @property (nonatomic, retain) ARWorldTrackingConfiguration *arConfig;

@@ -15,24 +15,69 @@
 
 - (instancetype)initAtPosition:(SCNVector3)position withMaterial:(SCNMaterial *)material {
   self = [super init];
+  _mode = CubeModeNormal;
 
   SCNBox *cube = [SCNBox boxWithWidth:1 height:1 length:1 chamferRadius:0.01];
   cube.materials = @[material];
-  SCNNode *node = [SCNNode nodeWithGeometry:cube];
+  self.cubeNode = [SCNNode nodeWithGeometry:cube];
   /*
   // The physicsBody tells SceneKit this geometry should be manipulated by the physics engine
   node.physicsBody = [SCNPhysicsBody bodyWithType:SCNPhysicsBodyTypeDynamic shape:nil];
   node.physicsBody.mass = 2.0;
   node.physicsBody.categoryBitMask = CollisionCategoryCube;*/
-  node.position = SCNVector3Make(position.x, position.y - 0.5, position.z);
-  node.pivot = SCNMatrix4MakeTranslation(0, -0.5, 0);
-  node.scale = SCNVector3Make(0.2, 0.2, 0.2);
-  [self addChildNode:node];
+  self.cubeNode.position = SCNVector3Make(0, 0, 0);
+  self.cubeNode.pivot = SCNMatrix4MakeTranslation(0, -0.5, 0);
+  self.cubeNode.scale = SCNVector3Make(0.2, 0.2, 0.2);
+
+  [self addChildNode:self.cubeNode];
+  self.position = position;
   return self;
 }
 
+- (void)setMode:(CubeMode)mode {
+    CGFloat scalingNodeSize = 0.05;
+    _mode = mode;
+    if (_mode == CubeModeResizing) {
+        _widthScalingControlNode = [SCNNode nodeWithGeometry:[SCNBox boxWithWidth:scalingNodeSize
+                                                                               height:scalingNodeSize
+                                                                               length:scalingNodeSize
+                                                                        chamferRadius:0]];
+        _heightScalingControlNode = [SCNNode nodeWithGeometry:[SCNBox boxWithWidth:scalingNodeSize
+                                                                            height:scalingNodeSize
+                                                                            length:scalingNodeSize
+                                                                     chamferRadius:0]];
+        _depthScalingControlNode = [SCNNode nodeWithGeometry:[SCNBox boxWithWidth:scalingNodeSize
+                                                                           height:scalingNodeSize
+                                                                           length:scalingNodeSize
+                                                                    chamferRadius:0]];
+
+        _widthScalingControlNode.geometry.firstMaterial.diffuse.contents = [UIColor redColor];
+        _heightScalingControlNode.geometry.firstMaterial.diffuse.contents = [UIColor greenColor];
+        _depthScalingControlNode.geometry.firstMaterial.diffuse.contents = [UIColor blueColor];
+
+        [self updateScaleControlsPosition];
+
+        [self addChildNode:_widthScalingControlNode];
+        [self addChildNode:_heightScalingControlNode];
+        [self addChildNode:_depthScalingControlNode];
+    } else {
+        [_widthScalingControlNode removeFromParentNode];
+        [_heightScalingControlNode removeFromParentNode];
+        [_depthScalingControlNode removeFromParentNode];
+        _widthScalingControlNode = nil;
+        _heightScalingControlNode = nil;
+        _depthScalingControlNode = nil;
+    }
+}
+
+- (void)updateScaleControlsPosition {
+    _widthScalingControlNode.position = SCNVector3Make(self.cubeNode.scale.x / 2.0, self.cubeNode.scale.y / 2.0, 0.0);
+    _heightScalingControlNode.position = SCNVector3Make(0.0, self.cubeNode.scale.y, 0.0);
+    _depthScalingControlNode.position = SCNVector3Make(0.0, self.cubeNode.scale.y / 2.0, self.cubeNode.scale.z / 2.0);
+}
+
 - (void)updateSizeWithWidth:(CGFloat)width height:(CGFloat)height length:(CGFloat)length {
-  SCNNode *cubeNode = self.childNodes.firstObject;
+  SCNNode *cubeNode = self.cubeNode;
   cubeNode.scale = SCNVector3Make(width, height, length);
 }
 

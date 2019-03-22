@@ -12,21 +12,56 @@
 #import "PBRMaterial.h"
 #import "ConfigViewController.h"
 
+typedef BOOL(^NSArrayFilterBlock)(id element);
+
+typedef id(^NSArrayFilterMapBlock)(id element);
+
+typedef void(^NSArrayForeachBlock)(id element);
+
+@interface NSArray (Functor)
+
+- (NSArray*)filter:(NSArrayFilterBlock)block;
+- (NSArray*)map:(NSArrayFilterMapBlock)block;
+- (void)foreach:(NSArrayForeachBlock)block;
+
+@end
+
+@implementation NSArray (Functor)
+
+- (NSArray*)filter:(NSArrayFilterBlock)block {
+    NSMutableArray* array = [NSMutableArray new];
+    [self enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (block(obj)) {
+            [array addObject:obj];
+        }
+    }];
+    return array;
+}
+
+- (NSArray*)map:(NSArrayFilterMapBlock)block {
+    NSMutableArray* array = [NSMutableArray new];
+    [self enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [array addObject:block(obj)];
+    }];
+    return array;
+}
+
+- (void)foreach:(NSArrayForeachBlock)block {
+    [self enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        block(obj);
+    }];
+}
+
+@end
+
 @interface ViewController () <ARSCNViewDelegate, UIGestureRecognizerDelegate, SCNPhysicsContactDelegate>
-@property (weak, nonatomic) IBOutlet UIView *settingsPanel;
 @property (nonatomic, strong) IBOutlet ARSCNView *sceneView;
-@property (weak, nonatomic) IBOutlet UIStepper *widthStepper;
-@property (weak, nonatomic) IBOutlet UIStepper *heightStepper;
-@property (weak, nonatomic) IBOutlet UIStepper *depthStepper;
-@property (weak, nonatomic) IBOutlet UILabel *widthLabel;
-@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
-@property (weak, nonatomic) IBOutlet UILabel *depthLabel;
+@property (strong, nonatomic) IBOutletCollection(UILabel) NSArray *widthLabels;
+@property (strong, nonatomic) IBOutletCollection(UILabel) NSArray *heightLabels;
+@property (strong, nonatomic) IBOutletCollection(UILabel) NSArray *depthLabels;
 @end
 
 @implementation ViewController
-- (IBAction)closeSettings:(id)sender {
-  _settingsPanel.hidden = YES;
-}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -36,7 +71,6 @@
   
   [self setupScene];
   [self setupLights];
-  //[self setupPhysics];
   [self setupRecognizers];
   
   // Create a ARSession confi object we can re-use
@@ -52,29 +86,86 @@
   config.detectPlanes = YES;
   self.config = config;
   [self updateConfig];
-  
+  [self updateLabels];
   // Stop the screen from dimming while we are using the app
   [UIApplication.sharedApplication setIdleTimerDisabled:YES];
 }
 
-- (IBAction)steperValueChanged:(id)sender {
-  if (sender == _widthStepper) {
-    _heightStepper.value = (120.0 - _widthStepper.value) * (_heightStepper.value / (_depthStepper.value + _heightStepper.value));
-    _depthStepper.value = 120.0 - _widthStepper.value - _heightStepper.value;
-  } else if (sender == _heightStepper) {
-    _widthStepper.value = (120.0 - _heightStepper.value) * (_widthStepper.value / (_depthStepper.value + _widthStepper.value));
-    _depthStepper.value = 120.0 - _widthStepper.value - _heightStepper.value;
-  } else if (sender == _depthStepper) {
-    _heightStepper.value = (120.0 - _depthStepper.value) * (_heightStepper.value / (_widthStepper.value + _heightStepper.value));
-    _widthStepper.value = 120.0 - _depthStepper.value - _heightStepper.value;
-  }
-  _widthStepper.value = floor(_widthStepper.value);
-  _heightStepper.value = floor(_heightStepper.value);
-  _depthStepper.value = floor(_depthStepper.value);
-  _widthLabel.text = [NSString stringWithFormat:@"%@", @(_widthStepper.value)];
-  _heightLabel.text = [NSString stringWithFormat:@"%@", @(_heightStepper.value)];
-  _depthLabel.text = [NSString stringWithFormat:@"%@", @(_depthStepper.value)];
-  [self updateCubeSize];
+- (void)updateLabels {
+    [[[_widthLabels
+       arrayByAddingObjectsFromArray:_heightLabels]
+      arrayByAddingObjectsFromArray:_depthLabels]
+     foreach:^(UILabel* label) {
+        label.hidden = !self.cube;
+    }];
+    if (!self.cube) {
+        return;
+    }
+    [_widthLabels
+     foreach:^(UILabel* label) {
+         [self setValue:self.cube.cubeNode.scale.x toLabel:label];
+     }];
+    [_heightLabels
+     foreach:^(UILabel* label) {
+         [self setValue:self.cube.cubeNode.scale.y toLabel:label];
+     }];
+    [_depthLabels
+     foreach:^(UILabel* label) {
+         [self setValue:self.cube.cubeNode.scale.z toLabel:label];
+     }];
+    [self updateLabelsPosition];
+}
+
+- (void)setValue:(double)value toLabel:(UILabel *)label {
+    label.text = [NSString stringWithFormat:@"%@ см", @((NSUInteger)(value * 100))];
+}
+
+- (void)updateLabelsPosition {
+    [self setPosition:SCNVector3Make(-_cube.cubeNode.scale.x / 2.0, 0, 0)
+             forLabel:_depthLabels[0]];
+    [self setPosition:SCNVector3Make(_cube.cubeNode.scale.x / 2.0, 0, 0)
+             forLabel:_depthLabels[1]];
+    [self setPosition:SCNVector3Make(-_cube.cubeNode.scale.x / 2.0, _cube.cubeNode.scale.y, 0)
+             forLabel:_depthLabels[2]];
+    [self setPosition:SCNVector3Make(_cube.cubeNode.scale.x / 2.0, _cube.cubeNode.scale.y, 0)
+             forLabel:_depthLabels[3]];
+
+    [self setPosition:SCNVector3Make(0, 0, -_cube.cubeNode.scale.z  / 2.0)
+             forLabel:_widthLabels[0]];
+    [self setPosition:SCNVector3Make(0, 0, _cube.cubeNode.scale.z  / 2.0)
+             forLabel:_widthLabels[1]];
+    [self setPosition:SCNVector3Make(0, _cube.cubeNode.scale.y, -_cube.cubeNode.scale.z  / 2.0)
+             forLabel:_widthLabels[2]];
+    [self setPosition:SCNVector3Make(0, _cube.cubeNode.scale.y, _cube.cubeNode.scale.z  / 2.0)
+             forLabel:_widthLabels[3]];
+
+    [self setPosition:SCNVector3Make(-_cube.cubeNode.scale.x / 2.0,
+                                     _cube.cubeNode.scale.y / 2.0,
+                                     -_cube.cubeNode.scale.z  / 2.0)
+             forLabel:_heightLabels[0]];
+    [self setPosition:SCNVector3Make(_cube.cubeNode.scale.x / 2.0,
+                                     _cube.cubeNode.scale.y / 2.0,
+                                     _cube.cubeNode.scale.x / 2.0)
+             forLabel:_heightLabels[1]];
+    [self setPosition:SCNVector3Make(-_cube.cubeNode.scale.x / 2.0,
+                                     _cube.cubeNode.scale.y / 2.0,
+                                     _cube.cubeNode.scale.z / 2.0)
+             forLabel:_heightLabels[2]];
+    [self setPosition:SCNVector3Make(_cube.cubeNode.scale.x / 2.0,
+                                     _cube.cubeNode.scale.y / 2.0,
+                                     -_cube.cubeNode.scale.z / 2.0)
+             forLabel:_heightLabels[3]];
+
+}
+
+- (void)setPosition:(SCNVector3)position forLabel:(UILabel*)label {
+    SCNVector3 calculatedPosition = [[[[self sceneView] scene] rootNode] convertPosition:position fromNode:_cube];
+    SCNVector3 projectedPoint = [[self sceneView] projectPoint:calculatedPosition];
+    [label sizeToFit];
+    label.frame = CGRectMake(projectedPoint.x - label.frame.size.width ,
+                              projectedPoint.y - label.frame.size.height,
+                              label.frame.size.width,
+                              label.frame.size.height);
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -111,33 +202,6 @@
   self.sceneView.scene = scene;
 }
 
-- (void)setupPhysics {
-  
-  // For our physics interactions, we place a large node a couple of meters below the world
-  // origin, after an explosion, if the geometry we added has fallen onto this surface which
-  // is place way below all of the surfaces we would have detected via ARKit then we consider
-  // this geometry to have fallen out of the world and remove it
-  SCNBox *bottomPlane = [SCNBox boxWithWidth:1000 height:0.5 length:1000 chamferRadius:0];
-  SCNMaterial *bottomMaterial = [SCNMaterial new];
-  
-  // Make it transparent so you can't see it
-  bottomMaterial.diffuse.contents = [UIColor colorWithWhite:1.0 alpha:0.0];
-  bottomPlane.materials = @[bottomMaterial];
-  SCNNode *bottomNode = [SCNNode nodeWithGeometry:bottomPlane];
-  
-  // Place it way below the world origin to catch all falling cubes
-  bottomNode.position = SCNVector3Make(0, -10, 0);
-  bottomNode.physicsBody = [SCNPhysicsBody
-                            bodyWithType:SCNPhysicsBodyTypeKinematic
-                            shape: nil];
-  bottomNode.physicsBody.categoryBitMask = CollisionCategoryBottom;
-  bottomNode.physicsBody.contactTestBitMask = CollisionCategoryCube;
-  
-  SCNScene *scene = self.sceneView.scene;
-  [scene.rootNode addChildNode:bottomNode];
-  scene.physicsWorld.contactDelegate = self;
-}
-
 - (void)setupLights {
   // Turn off all the default lights SceneKit adds since we are handling it ourselves
   self.sceneView.autoenablesDefaultLighting = NO;
@@ -156,21 +220,16 @@
                                                   action:@selector(insertCubeFrom:)];
   tapGestureRecognizer.numberOfTapsRequired = 1;
   [self.sceneView addGestureRecognizer:tapGestureRecognizer];
-  
-  // Press and hold will open a config menu for the selected geometry
-  UILongPressGestureRecognizer *materialGestureRecognizer = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(geometryConfigFrom:)];
-  materialGestureRecognizer.minimumPressDuration = 0.5;
-  [self.sceneView addGestureRecognizer:materialGestureRecognizer];
-  
-  // Press and hold with two fingers causes an explosion
-  UILongPressGestureRecognizer *explodeGestureRecognizer = [[UILongPressGestureRecognizer alloc]
+
+
+  UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc]
                                                             initWithTarget:self
-                                                            action:@selector(explodeFrom:)];
-  explodeGestureRecognizer.minimumPressDuration = 1;
-  explodeGestureRecognizer.numberOfTouchesRequired = 2;
-  [self.sceneView addGestureRecognizer:explodeGestureRecognizer];
+                                                            action:@selector(longPressDetected:)];
+  longPressRecognizer.minimumPressDuration = 1.0;
+    longPressRecognizer.numberOfTouchesRequired = 1;
+  [self.sceneView addGestureRecognizer:longPressRecognizer];
+
+    [tapGestureRecognizer requireGestureRecognizerToFail:longPressRecognizer];
 
   UIPanGestureRecognizer* panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                                                          action:@selector(dragCubeFrom:)];
@@ -187,10 +246,10 @@
   if (!self.cube)
     return;
   if (recognizer.state == UIGestureRecognizerStateBegan) {
-    originalRotation = self.cube.childNodes.firstObject.eulerAngles;
+    originalRotation = self.cube.eulerAngles;
   } else if (recognizer.state == UIGestureRecognizerStateChanged) {
-    self.cube.childNodes.firstObject.eulerAngles = SCNVector3Make(originalRotation.x,
-                                           originalRotation.y + recognizer.rotation,
+    self.cube.eulerAngles = SCNVector3Make(originalRotation.x,
+                                           originalRotation.y - recognizer.rotation,
                                            originalRotation.z);
   }
 }
@@ -204,70 +263,76 @@
 }
 
 - (void)dragOrInsertCubeFrom:(UIGestureRecognizer *)recognizer {
+    if (!_cube || _cube.mode == CubeModeNormal) {
+        // Take the screen space tap coordinates and pass them to the hitTest method on the ARSCNView instance
+        CGPoint tapPoint = [recognizer locationInView:self.sceneView];
+        NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:tapPoint types:ARHitTestResultTypeEstimatedHorizontalPlane];
 
-  // Take the screen space tap coordinates and pass them to the hitTest method on the ARSCNView instance
-  CGPoint tapPoint = [recognizer locationInView:self.sceneView];
-  NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:tapPoint types:ARHitTestResultTypeEstimatedHorizontalPlane];
-  
-  // If the intersection ray passes through any plane geometry they will be returned, with the planes
-  // ordered by distance from the camera
-  if (result.count == 0) {
-    [self showMessage:@"No plane detected"];
-    return;
-  }
+        // If the intersection ray passes through any plane geometry they will be returned, with the planes
+        // ordered by distance from the camera
+        if (result.count == 0) {
+            [self showMessage:@"No plane detected"];
+            return;
+        }
 
-  [NSOperationQueue.mainQueue addOperationWithBlock:^{
-    _settingsPanel.hidden = NO;
-  }];
+        // If there are multiple hits, just pick the closest plane
+        ARHitTestResult * hitResult = [result firstObject];
 
-  // If there are multiple hits, just pick the closest plane
-  ARHitTestResult * hitResult = [result firstObject];
+        [self updateCube:hitResult];
 
-  [self updateCube:hitResult];
+    } else {
+        CGPoint holdPoint = [recognizer locationInView:self.sceneView];
+
+        NSArray* scalingControls = @[_cube.widthScalingControlNode,
+                                     _cube.depthScalingControlNode,
+                                     _cube.heightScalingControlNode];
+
+
+        NSArray<SCNHitTestResult *> *result = [[self.sceneView hitTest:holdPoint options:@{
+                                                                                           SCNHitTestOptionSearchMode: @(SCNHitTestSearchModeAll)
+                                                                                           }]
+                                               filter:^BOOL(SCNHitTestResult* element) {
+                                                   return [scalingControls containsObject:element.node];
+                                               }];
+
+        if (result.count == 0) {
+            return;
+        }
+        SCNHitTestResult *hitResult = result.firstObject;
+        SCNVector3 position = hitResult.localCoordinates;
+        SCNNode* resultNode = result.firstObject.node;
+        if (resultNode == _cube.widthScalingControlNode) {
+            resultNode.position = SCNVector3Make(resultNode.position.x + position.x, resultNode.position.y, resultNode.position.z);
+        } else if (resultNode == _cube.heightScalingControlNode) {
+            resultNode.position = SCNVector3Make(resultNode.position.x, resultNode.position.y + position.y, resultNode.position.z);
+        } else {
+            resultNode.position = SCNVector3Make(resultNode.position.x, resultNode.position.y, resultNode.position.z + position.z);
+        }
+        self.cube.cubeNode.scale = SCNVector3Make(self.cube.widthScalingControlNode.position.x * 2.0,
+                                                  self.cube.heightScalingControlNode.position.y,
+                                                  self.cube.depthScalingControlNode.position.z * 2.0);
+
+        [self updateLabels];
+
+        if (recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateFailed) {
+            [self.cube updateScaleControlsPosition];
+        }
+    }
 }
 
-- (void)explodeFrom: (UILongPressGestureRecognizer *)recognizer {
+- (void)longPressDetected: (UILongPressGestureRecognizer *)recognizer {
   if (recognizer.state != UIGestureRecognizerStateBegan) {
     return;
   }
-  
-  // Perform a hit test using the screen coordinates to see if the user pressed on
-  // a plane.
-  CGPoint holdPoint = [recognizer locationInView:self.sceneView];
-  NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:holdPoint types:ARHitTestResultTypeExistingPlaneUsingExtent];
-  if (result.count == 0) {
-    return;
-  }
-  
-  ARHitTestResult * hitResult = [result firstObject];
-  [self explode:hitResult];
-}
 
-- (void)geometryConfigFrom: (UILongPressGestureRecognizer *)recognizer {
-  if (recognizer.state != UIGestureRecognizerStateBegan) {
-    return;
-  }
+  //CGPoint holdPoint = [recognizer locationInView:self.sceneView];
+  //NSArray<SCNHitTestResult *> *result = [self.sceneView hitTest:holdPoint options:nil];
+  //if (result.count == 0) {
+  //  return;
+  //}
   
-  // Perform a hit test using the screen coordinates to see if the user pressed on
-  // any 3D geometry in the scene, if so we will open a config menu for that
-  // geometry to customize the appearance
-  
-  CGPoint holdPoint = [recognizer locationInView:self.sceneView];
-  NSArray<SCNHitTestResult *> *result = [self.sceneView hitTest:holdPoint
-                                                        options:@{SCNHitTestBoundingBoxOnlyKey: @YES, SCNHitTestFirstFoundOnlyKey: @YES}];
-  if (result.count == 0) {
-    return;
-  }
-  
-  SCNHitTestResult * hitResult = [result firstObject];
-  SCNNode *node = hitResult.node;
-  
-  // We add all the geometry as children of the Plane/Cube SCNNode object, so we can
-  // get the parent and see what type of geometry this is
-  SCNNode *parentNode = node.parentNode;
-  if ([parentNode respondsToSelector:@selector(changeMaterial)]) {
-    [((Cube *)parentNode) changeMaterial];
-  }
+  //SCNHitTestResult *hitResult = [result firstObject];
+    _cube.mode = (_cube.mode == CubeModeNormal) ? CubeModeResizing : CubeModeNormal;
 }
 
 - (void)disableTracking:(BOOL)disabled {
@@ -282,14 +347,6 @@
   [self.sceneView.session runWithConfiguration:self.arConfig];
 }
 
-- (void)updateCubeSize {
-  [self.cube updateSizeWithWidth:_widthStepper.value / 100.0
-                          height:_heightStepper.value / 100.0
-                          length:_depthStepper.value / 100.0];
-}
-
-
-
 - (void)updateCube:(ARHitTestResult *)hitResult {
   // We insert the geometry slightly above the point the user tapped, so that it drops onto the plane
   // using the physics engine
@@ -299,14 +356,15 @@
                                        hitResult.worldTransform.columns[3].z
                                        );
   if (self.cube) {
-    self.cube.childNodes.firstObject.position = position;
+    self.cube.position = position;
+    [self updateLabels];
     return;
   }
 
   Cube *cube = [[Cube alloc] initAtPosition:position withMaterial:[Cube currentMaterial]];
+  [self updateLabels];
   self.cube = cube;
   [self.sceneView.scene.rootNode addChildNode:cube];
-  [self updateCubeSize];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -376,8 +434,8 @@
 
 - (void)clean
 {
-  [self.plane remove];
   [self.cube remove];
+    self.cube = nil;
 }
 
 - (IBAction)reset:(id)sender {
@@ -428,18 +486,11 @@
  @param anchor The added anchor.
  */
 - (void)renderer:(id <SCNSceneRenderer>)renderer didAddNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
-  return;
   if (![anchor isKindOfClass:[ARPlaneAnchor class]]) {
     return;
   }
   [self showMessage:@"Plane detected"];
   // When a new plane is detected we create a new SceneKit plane to visualize it in 3D
-  Plane *plane = [[Plane alloc] initWithAnchor: (ARPlaneAnchor *)anchor isHidden: NO withMaterial:[Plane currentMaterial]];
-  self.plane = plane;
-  [node addChildNode:plane];
-  [NSOperationQueue.mainQueue addOperationWithBlock:^{
-    [self disableTracking:YES];
-  }];
 }
 
 /**
@@ -450,14 +501,9 @@
  @param anchor The anchor that was updated.
  */
 - (void)renderer:(id <SCNSceneRenderer>)renderer didUpdateNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
-  if (![self.plane.anchor.identifier isEqual:anchor.identifier]) {
-    return;
-  }
-  
   // When an anchor is updated we need to also update our 3D geometry too. For example
   // the width and height of the plane detection may have changed so we need to update
   // our SceneKit geometry to match that
-  [self.plane update:(ARPlaneAnchor *)anchor];
 }
 
 /**
@@ -470,8 +516,6 @@
 - (void)renderer:(id <SCNSceneRenderer>)renderer didRemoveNode:(SCNNode *)node forAnchor:(ARAnchor *)anchor {
   // Nodes will be removed if planes multiple individual planes that are detected to all be
   // part of a larger plane are merged.
-  if ([self.plane.anchor.identifier isEqual:anchor.identifier])
-    [self.plane remove];
 }
 
 /**
@@ -564,6 +608,12 @@
   // Reset tracking and/or remove existing anchors if consistent tracking is required
   [self showMessage:@"Tracking session has been reset due to interruption"];
   [self refresh];
+}
+
+- (void)renderer:(id<SCNSceneRenderer>)renderer willRenderScene:(SCNScene *)scene atTime:(NSTimeInterval)time {
+    [NSOperationQueue.mainQueue addOperationWithBlock:^{
+        [self updateLabels];
+    }];
 }
 
 @end
