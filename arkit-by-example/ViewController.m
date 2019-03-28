@@ -10,7 +10,7 @@
 #import <SceneKit/SceneKitTypes.h>
 #import "CollisionCategory.h"
 #import "PBRMaterial.h"
-#import "ConfigViewController.h"
+#import <arkit_by_example-Swift.h>
 
 typedef BOOL(^NSArrayFilterBlock)(id element);
 
@@ -367,34 +367,8 @@ typedef void(^NSArrayForeachBlock)(id element);
   [self.sceneView.scene.rootNode addChildNode:cube];
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-  // Called just before we transition to the config screen
-  ConfigViewController *configController = (ConfigViewController *)segue.destinationViewController;
-  
-  // NOTE: I am using a popover so that we do't get the viewWillAppear method called when
-  // we close the popover, if that gets called (like if you did a modal settings page), then
-  // the session configuration is updated and we lose tracking. By default it shouldn't but
-  // it still seems to.
-  configController.modalPresentationStyle = UIModalPresentationPopover;
-  configController.popoverPresentationController.delegate = self;
-  configController.config = self.config;
-}
-
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
   return UIModalPresentationNone;
-}
-
-- (IBAction)settingsUnwind:(UIStoryboardSegue *)segue {
-  // Called after we navigate back from the config screen
-  
-  ConfigViewController *configView = (ConfigViewController *)segue.sourceViewController;
-  Config *config = self.config;
-  
-  config.showPhysicsBodies = configView.physicsBodies.on;
-  config.showFeaturePoints = configView.featurePoints.on;
-  config.showWorldOrigin = configView.worldOrigin.on;
-  config.showStatistics = configView.statistics.on;
-  [self updateConfig];
 }
 
 - (IBAction)detectPlanesChanged:(id)sender {
@@ -614,6 +588,21 @@ typedef void(^NSArrayForeachBlock)(id element);
     [NSOperationQueue.mainQueue addOperationWithBlock:^{
         [self updateLabels];
     }];
+}
+
++ (SCNVector3)calculateCentroidForPointcloud:(SCNVector3*)arrayOfPoints count:(NSUInteger)count {
+    SCNVector3 avg;
+    for(NSUInteger i = 0; i < count; i++) {
+        avg.x += arrayOfPoints[i].x;
+        avg.y += arrayOfPoints[i].y;
+        avg.z += arrayOfPoints[i].z;
+    }
+    return SCNVector3Make(avg.x / count, avg.y / count, avg.z / count);
+}
+
++ (CaliperResult)calculateOptimalBoundingRectangleForPointcloud:(SCNVector3*)arrayOfPoints
+                                                          count:(NSUInteger)count {
+    return (CaliperResult){ .0, .0, .0 };
 }
 
 @end

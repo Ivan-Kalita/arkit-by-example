@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C320417224A61EC004BB1FF /* arkit_by_exampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C320416224A61EC004BB1FF /* arkit_by_exampleTests.m */; };
 		2C5CC2AA2244F0CF002BC1DB /* UIView+IB.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5CC2A92244F0CE002BC1DB /* UIView+IB.m */; };
+		2C88E2B2224BA24D00DA7FCF /* ARUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C88E2B1224BA24D00DA7FCF /* ARUtils.swift */; };
 		4D23977F1EFEFC8D00C5F9B8 /* MessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D23977E1EFEFC8D00C5F9B8 /* MessageView.m */; };
 		4D4812411EEA0522007EBA5A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4812401EEA0522007EBA5A /* AppDelegate.m */; };
 		4D4812461EEA0522007EBA5A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4812451EEA0522007EBA5A /* ViewController.m */; };
@@ -15,15 +17,29 @@
 		4D4812511EEA0522007EBA5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4812501EEA0522007EBA5A /* main.m */; };
 		4D5F12031EF34368000C510C /* Cube.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5F12021EF34368000C510C /* Cube.m */; };
 		4D5F12061EF36229000C510C /* PBRMaterial.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5F12051EF36229000C510C /* PBRMaterial.m */; };
-		4D5F12091EF39E20000C510C /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5F12081EF39E20000C510C /* ConfigViewController.m */; };
 		4DCBF0E21EF40DE000DDF979 /* Config.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DCBF0E11EF40DE000DDF979 /* Config.m */; };
 		4DCBF0E61EF411AE00DDF979 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4DCBF0E51EF4118000DDF979 /* Main.storyboard */; };
 		4DCBF0E81EF4324900DDF979 /* Assets.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 4DCBF0E71EF4324900DDF979 /* Assets.scnassets */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2C320419224A61EC004BB1FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D4812341EEA0522007EBA5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D48123B1EEA0522007EBA5A;
+			remoteInfo = "arkit-by-example";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		2C320414224A61EC004BB1FF /* arkit-by-exampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "arkit-by-exampleTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C320416224A61EC004BB1FF /* arkit_by_exampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = arkit_by_exampleTests.m; sourceTree = "<group>"; };
+		2C320418224A61EC004BB1FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C5CC2A82244F0CE002BC1DB /* UIView+IB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+IB.h"; sourceTree = "<group>"; };
 		2C5CC2A92244F0CE002BC1DB /* UIView+IB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+IB.m"; sourceTree = "<group>"; };
+		2C88E2AD224B995000DA7FCF /* arkit-by-example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "arkit-by-example-Bridging-Header.h"; sourceTree = "<group>"; };
+		2C88E2B1224BA24D00DA7FCF /* ARUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARUtils.swift; sourceTree = "<group>"; };
 		4D23977E1EFEFC8D00C5F9B8 /* MessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageView.m; sourceTree = "<group>"; };
 		4D2397801EFEFE8000C5F9B8 /* MessageView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageView.h; sourceTree = "<group>"; };
 		4D48123C1EEA0522007EBA5A /* arkit-by-example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "arkit-by-example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -39,15 +55,20 @@
 		4D5F12041EF34544000C510C /* CollisionCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollisionCategory.h; sourceTree = "<group>"; };
 		4D5F12051EF36229000C510C /* PBRMaterial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PBRMaterial.m; sourceTree = "<group>"; };
 		4D5F12071EF36380000C510C /* PBRMaterial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBRMaterial.h; sourceTree = "<group>"; };
-		4D5F12081EF39E20000C510C /* ConfigViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
 		4DCBF0E01EF40D6800DDF979 /* Config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		4DCBF0E11EF40DE000DDF979 /* Config.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Config.m; sourceTree = "<group>"; };
 		4DCBF0E51EF4118000DDF979 /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		4DCBF0E71EF4324900DDF979 /* Assets.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = Assets.scnassets; sourceTree = "<group>"; };
-		4DEC600D1EF3B8280094E3CD /* ConfigViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfigViewController.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2C320411224A61EC004BB1FF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4D4812391EEA0522007EBA5A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -58,10 +79,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2C320415224A61EC004BB1FF /* arkit-by-exampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				2C320416224A61EC004BB1FF /* arkit_by_exampleTests.m */,
+				2C320418224A61EC004BB1FF /* Info.plist */,
+			);
+			path = "arkit-by-exampleTests";
+			sourceTree = "<group>";
+		};
 		4D4812331EEA0522007EBA5A = {
 			isa = PBXGroup;
 			children = (
 				4D48123E1EEA0522007EBA5A /* arkit-by-example */,
+				2C320415224A61EC004BB1FF /* arkit-by-exampleTests */,
 				4D48123D1EEA0522007EBA5A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -70,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				4D48123C1EEA0522007EBA5A /* arkit-by-example.app */,
+				2C320414224A61EC004BB1FF /* arkit-by-exampleTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -83,8 +115,6 @@
 				4D4812401EEA0522007EBA5A /* AppDelegate.m */,
 				4D4812441EEA0522007EBA5A /* ViewController.h */,
 				4D4812451EEA0522007EBA5A /* ViewController.m */,
-				4DEC600D1EF3B8280094E3CD /* ConfigViewController.h */,
-				4D5F12081EF39E20000C510C /* ConfigViewController.m */,
 				4DCBF0E51EF4118000DDF979 /* Main.storyboard */,
 				4D48124C1EEA0522007EBA5A /* LaunchScreen.storyboard */,
 				4D48124F1EEA0522007EBA5A /* Info.plist */,
@@ -99,6 +129,8 @@
 				4D2397801EFEFE8000C5F9B8 /* MessageView.h */,
 				4D23977E1EFEFC8D00C5F9B8 /* MessageView.m */,
 				4DCBF0E71EF4324900DDF979 /* Assets.scnassets */,
+				2C88E2AD224B995000DA7FCF /* arkit-by-example-Bridging-Header.h */,
+				2C88E2B1224BA24D00DA7FCF /* ARUtils.swift */,
 			);
 			path = "arkit-by-example";
 			sourceTree = "<group>";
@@ -106,6 +138,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2C320413224A61EC004BB1FF /* arkit-by-exampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C32041D224A61EC004BB1FF /* Build configuration list for PBXNativeTarget "arkit-by-exampleTests" */;
+			buildPhases = (
+				2C320410224A61EC004BB1FF /* Sources */,
+				2C320411224A61EC004BB1FF /* Frameworks */,
+				2C320412224A61EC004BB1FF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2C32041A224A61EC004BB1FF /* PBXTargetDependency */,
+			);
+			name = "arkit-by-exampleTests";
+			productName = "arkit-by-exampleTests";
+			productReference = 2C320414224A61EC004BB1FF /* arkit-by-exampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4D48123B1EEA0522007EBA5A /* arkit-by-example */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4D4812541EEA0522007EBA5A /* Build configuration list for PBXNativeTarget "arkit-by-example" */;
@@ -132,8 +182,14 @@
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = ruanestudios;
 				TargetAttributes = {
+					2C320413224A61EC004BB1FF = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 4D48123B1EEA0522007EBA5A;
+					};
 					4D48123B1EEA0522007EBA5A = {
 						CreatedOnToolsVersion = 9.0;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -151,11 +207,19 @@
 			projectRoot = "";
 			targets = (
 				4D48123B1EEA0522007EBA5A /* arkit-by-example */,
+				2C320413224A61EC004BB1FF /* arkit-by-exampleTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2C320412224A61EC004BB1FF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4D48123A1EEA0522007EBA5A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -169,6 +233,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2C320410224A61EC004BB1FF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C320417224A61EC004BB1FF /* arkit_by_exampleTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4D4812381EEA0522007EBA5A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -180,12 +252,20 @@
 				4D5F12061EF36229000C510C /* PBRMaterial.m in Sources */,
 				4D4812461EEA0522007EBA5A /* ViewController.m in Sources */,
 				4D4812511EEA0522007EBA5A /* main.m in Sources */,
-				4D5F12091EF39E20000C510C /* ConfigViewController.m in Sources */,
+				2C88E2B2224BA24D00DA7FCF /* ARUtils.swift in Sources */,
 				4D4812411EEA0522007EBA5A /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2C32041A224A61EC004BB1FF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4D48123B1EEA0522007EBA5A /* arkit-by-example */;
+			targetProxy = 2C320419224A61EC004BB1FF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		4D48124C1EEA0522007EBA5A /* LaunchScreen.storyboard */ = {
@@ -199,6 +279,53 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2C32041B224A61EC004BB1FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9GLZZ4HXJW;
+				INFOPLIST_FILE = "arkit-by-exampleTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.simbirsoft.arkit-by-exampleTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/arkit-by-example.app/arkit-by-example";
+			};
+			name = Debug;
+		};
+		2C32041C224A61EC004BB1FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9GLZZ4HXJW;
+				INFOPLIST_FILE = "arkit-by-exampleTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.simbirsoft.arkit-by-exampleTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/arkit-by-example.app/arkit-by-example";
+			};
+			name = Release;
+		};
 		4D4812521EEA0522007EBA5A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -303,11 +430,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = HS26E3V4RC;
 				INFOPLIST_FILE = "arkit-by-example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ss.ruanestudios.arkit-by-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "arkit-by-example/arkit-by-example-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -316,11 +447,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = HS26E3V4RC;
 				INFOPLIST_FILE = "arkit-by-example/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ss.ruanestudios.arkit-by-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "arkit-by-example/arkit-by-example-Bridging-Header.h";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -328,6 +462,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2C32041D224A61EC004BB1FF /* Build configuration list for PBXNativeTarget "arkit-by-exampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C32041B224A61EC004BB1FF /* Debug */,
+				2C32041C224A61EC004BB1FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4D4812371EEA0522007EBA5A /* Build configuration list for PBXProject "arkit-by-example" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

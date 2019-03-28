@@ -14,6 +14,12 @@
 #import "Config.h"
 #import "MessageView.h"
 
+typedef struct CaliperResult {
+    float length;
+    float width;
+    float rotation;
+} CaliperResult;
+
 @interface ViewController : UIViewController<UIPopoverPresentationControllerDelegate>
 
 - (void)setupScene;
