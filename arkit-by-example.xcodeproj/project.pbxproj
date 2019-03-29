@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2C320417224A61EC004BB1FF /* arkit_by_exampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C320416224A61EC004BB1FF /* arkit_by_exampleTests.m */; };
 		2C5CC2AA2244F0CF002BC1DB /* UIView+IB.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C5CC2A92244F0CE002BC1DB /* UIView+IB.m */; };
+		2C5E7FA4224E3E830022A907 /* VectorScpaceUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5E7FA3224E3E830022A907 /* VectorScpaceUtils.swift */; };
 		2C88E2B2224BA24D00DA7FCF /* ARUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C88E2B1224BA24D00DA7FCF /* ARUtils.swift */; };
 		4D23977F1EFEFC8D00C5F9B8 /* MessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D23977E1EFEFC8D00C5F9B8 /* MessageView.m */; };
 		4D4812411EEA0522007EBA5A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4812401EEA0522007EBA5A /* AppDelegate.m */; };
@@ -38,6 +39,7 @@
 		2C320418224A61EC004BB1FF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2C5CC2A82244F0CE002BC1DB /* UIView+IB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+IB.h"; sourceTree = "<group>"; };
 		2C5CC2A92244F0CE002BC1DB /* UIView+IB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+IB.m"; sourceTree = "<group>"; };
+		2C5E7FA3224E3E830022A907 /* VectorScpaceUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorScpaceUtils.swift; sourceTree = "<group>"; };
 		2C88E2AD224B995000DA7FCF /* arkit-by-example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "arkit-by-example-Bridging-Header.h"; sourceTree = "<group>"; };
 		2C88E2B1224BA24D00DA7FCF /* ARUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARUtils.swift; sourceTree = "<group>"; };
 		4D23977E1EFEFC8D00C5F9B8 /* MessageView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageView.m; sourceTree = "<group>"; };
@@ -88,6 +90,13 @@
 			path = "arkit-by-exampleTests";
 			sourceTree = "<group>";
 		};
+		2C5E7F72224CDB1D0022A907 /* Libs */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Libs;
+			sourceTree = "<group>";
+		};
 		4D4812331EEA0522007EBA5A = {
 			isa = PBXGroup;
 			children = (
@@ -109,6 +118,7 @@
 		4D48123E1EEA0522007EBA5A /* arkit-by-example */ = {
 			isa = PBXGroup;
 			children = (
+				2C5E7F72224CDB1D0022A907 /* Libs */,
 				2C5CC2A82244F0CE002BC1DB /* UIView+IB.h */,
 				2C5CC2A92244F0CE002BC1DB /* UIView+IB.m */,
 				4D48123F1EEA0522007EBA5A /* AppDelegate.h */,
@@ -131,6 +141,7 @@
 				4DCBF0E71EF4324900DDF979 /* Assets.scnassets */,
 				2C88E2AD224B995000DA7FCF /* arkit-by-example-Bridging-Header.h */,
 				2C88E2B1224BA24D00DA7FCF /* ARUtils.swift */,
+				2C5E7FA3224E3E830022A907 /* VectorScpaceUtils.swift */,
 			);
 			path = "arkit-by-example";
 			sourceTree = "<group>";
@@ -246,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D23977F1EFEFC8D00C5F9B8 /* MessageView.m in Sources */,
+				2C5E7FA4224E3E830022A907 /* VectorScpaceUtils.swift in Sources */,
 				2C5CC2AA2244F0CF002BC1DB /* UIView+IB.m in Sources */,
 				4D5F12031EF34368000C510C /* Cube.m in Sources */,
 				4DCBF0E21EF40DE000DDF979 /* Config.m in Sources */,
