@@ -243,6 +243,8 @@ typedef void(^NSArrayForeachBlock)(id element);
 }
 
 - (void)rotateCubeFrom:(UIRotationGestureRecognizer *)recognizer {
+  if (self.interactionMode == ARInteractionModeBoundingBox)
+      return;
   static SCNVector3 originalRotation;
   if (!self.cube)
     return;
@@ -256,7 +258,9 @@ typedef void(^NSArrayForeachBlock)(id element);
 }
 
 - (void)dragCubeFrom:(UIPanGestureRecognizer *)recognizer {
-  [self dragOrInsertCubeFrom:recognizer];
+    if (self.interactionMode == ARInteractionModeBoundingBox)
+        return;
+    [self dragOrInsertCubeFrom:recognizer];
 }
 
 - (void)insertCubeFrom:(UITapGestureRecognizer *)recognizer {
@@ -289,22 +293,24 @@ typedef void(^NSArrayForeachBlock)(id element);
         self.markers = [NSMutableArray new];
     }
 
-    SCNNode* markerNode = [SCNNode nodeWithGeometry:[SCNSphere sphereWithRadius:0.01]];
+    SCNNode* markerNode = [SCNNode nodeWithGeometry:[SCNSphere sphereWithRadius:0.005]];
     [self.markers addObject:markerNode];
     [self.sceneView.scene.rootNode addChildNode:markerNode];
     markerNode.position = position;
-
     if (self.markers.count > 3) {
         CaliperResult caliperResult = [ARUtils calculateBoundingBoxFor:[self.markers map:^id(SCNNode* node) {
             return [NSValue valueWithSCNVector3:node.position];
         }]];
         [self.cube removeFromParentNode];
-        Cube *cube = [[Cube alloc] initAtPosition:caliperResult.cenroid withMaterial:[Cube currentMaterial]];
+        Cube *cube = [[Cube alloc] initAtPosition:SCNVector3Make(caliperResult.cenroid.x,
+                                                                 caliperResult.cenroid.y - caliperResult.height / 2.0,
+                                                                 caliperResult.cenroid.z)
+                                     withMaterial:[Cube currentMaterial]];
         [self.sceneView.scene.rootNode addChildNode:cube];
         self.cube = cube;
-        self.cube.cubeNode.scale = SCNVector3Make(caliperResult.length, caliperResult.height, caliperResult.width);
+        self.cube.cubeNode.scale = SCNVector3Make(caliperResult.width, caliperResult.height, caliperResult.length);
         self.cube.eulerAngles = SCNVector3Make(0,
-                                               -caliperResult.rotation2D,
+                                               caliperResult.rotation2D,
                                                0);
         [self updateLabels];
     } else {

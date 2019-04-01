@@ -25,7 +25,7 @@
   node.physicsBody = [SCNPhysicsBody bodyWithType:SCNPhysicsBodyTypeDynamic shape:nil];
   node.physicsBody.mass = 2.0;
   node.physicsBody.categoryBitMask = CollisionCategoryCube;*/
-  self.cubeNode.position = SCNVector3Make(0, 0, 0);
+  self.cubeNode.position = SCNVector3Zero;
   self.cubeNode.pivot = SCNMatrix4MakeTranslation(0, -0.5, 0);
   self.cubeNode.scale = SCNVector3Make(0.2, 0.2, 0.2);
 
