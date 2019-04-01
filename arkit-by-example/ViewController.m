@@ -59,6 +59,7 @@ typedef void(^NSArrayForeachBlock)(id element);
 @property (strong, nonatomic) IBOutletCollection(UILabel) NSArray *widthLabels;
 @property (strong, nonatomic) IBOutletCollection(UILabel) NSArray *heightLabels;
 @property (strong, nonatomic) IBOutletCollection(UILabel) NSArray *depthLabels;
+@property NSMutableArray<SCNNode*>* markers;
 @end
 
 @implementation ViewController
@@ -259,7 +260,57 @@ typedef void(^NSArrayForeachBlock)(id element);
 }
 
 - (void)insertCubeFrom:(UITapGestureRecognizer *)recognizer {
-  [self dragOrInsertCubeFrom:recognizer];
+    if (self.interactionMode == ARInteractionModeDefault) {
+        [self dragOrInsertCubeFrom:recognizer];
+    } else {
+        [self placeMarkersFrom:recognizer];
+    }
+}
+
+- (void)placeMarkersFrom:(UIGestureRecognizer *)recognizer {
+    CGPoint tapPoint = [recognizer locationInView:self.sceneView];
+    NSArray<ARHitTestResult *> *result = [self.sceneView hitTest:tapPoint types:ARHitTestResultTypeEstimatedHorizontalPlane];
+
+    // If the intersection ray passes through any plane geometry they will be returned, with the planes
+    // ordered by distance from the camera
+    if (result.count == 0) {
+        [self showMessage:@"No plane detected"];
+        return;
+    }
+
+    ARHitTestResult * hitResult = [result firstObject];
+
+    SCNVector3 position = SCNVector3Make(
+                                         hitResult.worldTransform.columns[3].x,
+                                         hitResult.worldTransform.columns[3].y,
+                                         hitResult.worldTransform.columns[3].z
+                                         );
+    if (!self.markers) {
+        self.markers = [NSMutableArray new];
+    }
+
+    SCNNode* markerNode = [SCNNode nodeWithGeometry:[SCNSphere sphereWithRadius:0.01]];
+    [self.markers addObject:markerNode];
+    [self.sceneView.scene.rootNode addChildNode:markerNode];
+    markerNode.position = position;
+
+    if (self.markers.count > 3) {
+        CaliperResult caliperResult = [ARUtils calculateBoundingBoxFor:[self.markers map:^id(SCNNode* node) {
+            return [NSValue valueWithSCNVector3:node.position];
+        }]];
+        [self.cube removeFromParentNode];
+        Cube *cube = [[Cube alloc] initAtPosition:caliperResult.cenroid withMaterial:[Cube currentMaterial]];
+        [self.sceneView.scene.rootNode addChildNode:cube];
+        self.cube = cube;
+        self.cube.cubeNode.scale = SCNVector3Make(caliperResult.length, caliperResult.height, caliperResult.width);
+        self.cube.eulerAngles = SCNVector3Make(0,
+                                               -caliperResult.rotation2D,
+                                               0);
+        [self updateLabels];
+    } else {
+        [self.cube removeFromParentNode];
+        self.cube = nil;
+    }
 }
 
 - (void)dragOrInsertCubeFrom:(UIGestureRecognizer *)recognizer {
@@ -371,18 +422,21 @@ typedef void(^NSArrayForeachBlock)(id element);
   return UIModalPresentationNone;
 }
 
-- (IBAction)detectPlanesChanged:(id)sender {
+- (IBAction)boundingBoxModeChanged:(id)sender {
   BOOL enabled = ((UISwitch *)sender).on;
-  
-  if (enabled == self.config.detectPlanes) {
+
+  if (enabled && self.interactionMode == ARInteractionModeBoundingBox) {
     return;
   }
   
-  self.config.detectPlanes = enabled;
+  self.interactionMode = enabled ? ARInteractionModeBoundingBox : ARInteractionModeDefault;
   if (enabled) {
-    [self disableTracking: NO];
+      [self clean];
   } else {
-    [self disableTracking: YES];
+      [self.markers foreach:^(SCNNode* element) {
+          [element removeFromParentNode];
+      }];
+      self.markers = nil;
   }
 }
 
@@ -408,8 +462,12 @@ typedef void(^NSArrayForeachBlock)(id element);
 
 - (void)clean
 {
-  [self.cube remove];
+    [self.cube remove];
     self.cube = nil;
+    [self.markers enumerateObjectsUsingBlock:^(SCNNode* obj, NSUInteger idx, BOOL* stop) {
+        [obj removeFromParentNode];
+    }];
+    self.markers = nil;
 }
 
 - (IBAction)reset:(id)sender {
@@ -588,21 +646,6 @@ typedef void(^NSArrayForeachBlock)(id element);
     [NSOperationQueue.mainQueue addOperationWithBlock:^{
         [self updateLabels];
     }];
-}
-
-+ (SCNVector3)calculateCentroidForPointcloud:(SCNVector3*)arrayOfPoints count:(NSUInteger)count {
-    SCNVector3 avg;
-    for(NSUInteger i = 0; i < count; i++) {
-        avg.x += arrayOfPoints[i].x;
-        avg.y += arrayOfPoints[i].y;
-        avg.z += arrayOfPoints[i].z;
-    }
-    return SCNVector3Make(avg.x / count, avg.y / count, avg.z / count);
-}
-
-+ (CaliperResult)calculateOptimalBoundingRectangleForPointcloud:(SCNVector3*)arrayOfPoints
-                                                          count:(NSUInteger)count {
-    return (CaliperResult){ .0, .0, .0 };
 }
 
 @end

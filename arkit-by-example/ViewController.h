@@ -17,11 +17,17 @@
 typedef struct CaliperResult {
     float length;
     float width;
-    float rotation;
+    float height;
+    SCNVector3 cenroid;
+    float rotation2D;
 } CaliperResult;
 
-@interface ViewController : UIViewController<UIPopoverPresentationControllerDelegate>
+typedef NS_ENUM(NSUInteger, ARInteractionMode) {
+    ARInteractionModeDefault,
+    ARInteractionModeBoundingBox
+};
 
+@interface ViewController : UIViewController<UIPopoverPresentationControllerDelegate>
 - (void)setupScene;
 - (void)setupLights;
 - (void)setupPhysics;
@@ -35,12 +41,13 @@ typedef struct CaliperResult {
 - (void)explodeFrom: (UITapGestureRecognizer *)recognizer;
 - (void)geometryConfigFrom: (UITapGestureRecognizer *)recognizer;
 - (IBAction)settingsUnwind:(UIStoryboardSegue *)segue;
-- (IBAction)detectPlanesChanged:(id)sender;
+- (IBAction)boundingBoxModeChanged:(id)sender;
 
 @property (nonatomic, retain) Cube *cube;
 @property (nonatomic, retain) Config *config;
 @property (nonatomic, retain) ARWorldTrackingConfiguration *arConfig;
 @property (weak, nonatomic) IBOutlet MessageView *messageViewer;
 @property (nonatomic) ARTrackingState currentTrackingState;
+@property (nonatomic) ARInteractionMode interactionMode;
 
 @end
